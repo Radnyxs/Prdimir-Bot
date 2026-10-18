@@ -180,6 +180,22 @@ async def log_only(ctx, text):
         čas = local_time.strftime("%d.%m.%Y %H:%M:%S")
         print(f"\n[{čas} - Prdimír (Console Only)]: {text}")
 
+@bot.event
+async def on_message_delete(message):
+    if message.author == bot.user:
+        return
+
+    if isinstance(message.channel, discord.DMChannel):
+        local_time = datetime.now()
+        čas = local_time.strftime("%d.%m.%Y %H:%M:%S")
+
+        msg_text = message.content or "[Bez textu]"
+        if message.attachments:
+            attachment_urls = " ".join([att.url for att in message.attachments])
+            msg_text = f"{msg_text} [Příloha: {attachment_urls}]".strip()
+
+        print(f"\n[{čas} - 🗑️ ZPRÁVA SMAZÁNA od {message.author}]: {msg_text}")
+
 @bot.command()
 async def test(ctx):
     print("\nDEBUG: test příkaz spuštěn v DMs nebo serveru!")
