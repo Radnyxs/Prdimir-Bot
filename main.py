@@ -116,14 +116,19 @@ async def senddm(ctx, member: discord.User, *, text: str):
 
 @bot.event
 async def on_message(message):
-    #1 zprávy do dms
     if message.author == bot.user:
         return
 
     if isinstance(message.channel, discord.DMChannel):
         local_time = message.created_at + timedelta(hours=2)
         čas = local_time.strftime("%d.%m.%Y %H:%M:%S")
-        print(f"\n[{čas} - {message.author}]: {message.content}")
+
+        msg_text = message.content
+        if message.attachments:
+            attachment_urls = " ".join([att.url for att in message.attachments])
+            msg_text = f"{msg_text} [Příloha: {attachment_urls}]".strip()
+
+        print(f"\n[{čas} - {message.author}]: {msg_text}")
 
     if not isinstance(message.channel, discord.DMChannel):
         content = message.content.lower()
