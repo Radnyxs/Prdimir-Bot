@@ -209,5 +209,25 @@ async def test(ctx):
 async def on_command_error(ctx, error):
     print(f"\n⚠️ CHYBA PŘÍKAZU ({ctx.command}): {error}")
 
+@bot.command()
+async def sayin(ctx, channel: discord.TextChannel, *, text: str):
+    allowed_users = [449847721386573825]
+
+    if ctx.author.id not in allowed_users:
+        await ctx.send("na tento příkaz nemáš oprávnění!! ❌")
+        return
+
+    try:
+        await channel.send(text)
+        čas = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+        server_name = channel.guild.name
+        print(f"\n[{čas} - ✅ Odesláno do '{server_name}' #{channel.name} ({channel.id})] od {ctx.author.name}: {text}")
+        await ctx.send(f"✅ Odesláno do {channel.mention}!")
+    except discord.Forbidden:
+        await ctx.send(f"❌ Nemám oprávnění v {channel.mention}!!")
+    except Exception as e:
+        print(f"\n⚠️ CHYBA V SAYIN: {e}")
+        await ctx.send(f"⚠️ Nastala chyba: {e}")
+
 bot.run(token, log_handler = handler, log_level = logging.DEBUG)
 
