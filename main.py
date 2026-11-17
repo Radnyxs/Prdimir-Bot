@@ -7,7 +7,6 @@ from discord.ext.commands import BadArgument
 from dotenv import load_dotenv
 import os
 import aiohttp
-from google import genai
 import asyncio
 
 import random
