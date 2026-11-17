@@ -540,6 +540,22 @@ class Databaze:
         self.con.execute(f"UPDATE players SET {sloupce} WHERE user_id=?", (*pole.values(), uid))
         self.con.commit()
 
+    def obsazeni_partneri(self):
+        """Množina klíčů partnerů, kteří už s někým chodí."""
+        return {r["partner_id"] for r in self.con.execute(
+            "SELECT partner_id FROM players WHERE partner_id IS NOT NULL")}
+
+    def zabrat_partnera(self, uid, klic):
+        """Atomicky přiřadí partnera hráči, jen pokud ho nemá nikdo jiný. Vrací True/False."""
+        self.hrac(uid)
+        cur = self.con.execute(
+            "UPDATE players SET partner_id=?, spokojenost=100, last_rande=? "
+            "WHERE user_id=? AND partner_id IS NULL "
+            "AND NOT EXISTS (SELECT 1 FROM players WHERE partner_id=?)",
+            (klic, time.time(), uid, klic))
+        self.con.commit()
+        return cur.rowcount > 0
+
     def pricti(self, uid, castka):
         self.hrac(uid)
         self.con.execute("UPDATE players SET balance = balance + ? WHERE user_id=?", (int(castka), uid))
@@ -716,6 +732,22 @@ class TinderView(discord.ui.View):
     def aktualni_klic(self):
         return self.kandidati[self.idx % len(self.kandidati)]
 
+    def _odstran_obsazene(self):
+        """Vyhodí kandidáty, které si mezitím někdo jiný vzal. Vrací True, pokud někdo zbyl."""
+        obsazeni = self.cog.db.obsazeni_partneri()
+        self.kandidati = [k for k in self.kandidati if k not in obsazeni]
+        return bool(self.kandidati)
+
+    async def _nikdo_volny(self, interaction):
+        self.hotovo = True
+        self._disable_all()
+        self.stop()
+        await interaction.response.edit_message(
+            embed=discord.Embed(description="💔 Tenhle/ta už je s někým jiným a nikdo další tu momentálně není.",
+                                color=0x757575),
+            view=self
+        )
+
     def render_embed(self):
         klic = self.aktualni_klic()
         pt = PARTNERI[klic]
@@ -762,6 +794,9 @@ class TinderView(discord.ui.View):
     async def like(self, interaction: discord.Interaction, button: discord.ui.Button):
         if self.hotovo:
             return
+        if not self._odstran_obsazene():
+            await self._nikdo_volny(interaction)
+            return
         klic = self.aktualni_klic()
         pt = PARTNERI[klic]
         p = self.cog.db.hrac(self.user_id)
@@ -787,15 +822,18 @@ class TinderView(discord.ui.View):
         efektivni_sance = min(0.95, pt["sance_match"] + bonus_sance)
 
         if random.random() < efektivni_sance:
+            if not self.cog.db.zabrat_partnera(self.user_id, klic):
+                # někdo byl o chlup rychlejší
+                if not self._odstran_obsazene():
+                    await self._nikdo_volny(interaction)
+                    return
+                e = self.render_embed()
+                e.set_author(name=f"💔 {pt['jmeno']} je už zadaný/á. Další profil:")
+                await interaction.response.edit_message(embed=e, view=self)
+                return
             self.hotovo = True
             self._disable_all()
             self.stop()
-            self.cog.db.nastav(
-                self.user_id,
-                partner_id=klic,
-                spokojenost=100,
-                last_rande=time.time()
-            )
             e = discord.Embed(
                 title="💘 IT'S A MATCH! Máte vztah!",
                 description=(
@@ -837,6 +875,9 @@ class TinderView(discord.ui.View):
             )
         else:
             self.idx += 1
+            if not self._odstran_obsazene():
+                await self._nikdo_volny(interaction)
+                return
             await interaction.response.edit_message(embed=self.render_embed(), view=self)
 
     async def on_timeout(self):
@@ -1187,6 +1228,15 @@ class Hazard(commands.Cog):
             return None, None
         return pid, PARTNERI[pid]
 
+    def volni_kandidati(self, p, kde):
+        """Partneři vhodní pro hráče (podle pohlaví/orientace a místa), kteří nejsou obsazení."""
+        cilova_pohlavi = povolena_pohlavi(p["pohlavi"], p["orientace"])
+        obsazeni = self.db.obsazeni_partneri()
+        return [
+            k for k, v in PARTNERI.items()
+            if v["pohlavi"] in cilova_pohlavi and v["kde"] in kde and k not in obsazeni
+        ]
+
     def ziskej_buff(self, uid, typ):
         """Vrátí hodnotu pasivního bonusu daného typu od aktivního partnera (jinak 0)."""
         _, pt = self.aktivni_partner(uid)
@@ -1248,13 +1298,9 @@ class Hazard(commands.Cog):
             await ctx.send(f"❌ Už chodíš s **{pt['jmeno']}**! Nejdřív se rozejdi příkazem `prd rozchod`.")
             return
 
-        cilova_pohlavi = povolena_pohlavi(p["pohlavi"], p["orientace"])
-        kandidati = [
-            k for k, v in PARTNERI.items()
-            if v["pohlavi"] in cilova_pohlavi and v["kde"] in ("tinder", "oboje")
-        ]
+        kandidati = self.volni_kandidati(p, ("tinder", "oboje"))
         if not kandidati:
-            await ctx.send("❌ Na Tinderu momentálně nikdo odpovídající tvým preferencím není.")
+            await ctx.send("❌ Na Tinderu momentálně nikdo volný odpovídající tvým preferencím není.")
             return
 
         view = TinderView(self, ctx.author.id, kandidati, je_venku=False)
@@ -1273,11 +1319,7 @@ class Hazard(commands.Cog):
 
         # 50 % šance potkat někoho venku (pokud je hráč nezadaný)
         if not aktivni_pt and random.random() < 0.50:
-            cilova_pohlavi = povolena_pohlavi(p["pohlavi"], p["orientace"])
-            kandidati = [
-                k for k, v in PARTNERI.items()
-                if v["pohlavi"] in cilova_pohlavi and v["kde"] in ("venku", "oboje")
-            ]
+            kandidati = self.volni_kandidati(p, ("venku", "oboje"))
             if kandidati:
                 vybrany = random.choice(kandidati)
                 view = TinderView(self, ctx.author.id, [vybrany], je_venku=True)
@@ -1471,11 +1513,7 @@ class Hazard(commands.Cog):
         # Malá 10% šance při žebrání na ulici potkat partnera z ulice
         _, aktivni_pt = self.aktivni_partner(ctx.author.id)
         if not aktivni_pt and random.random() < 0.10:
-            cilova_pohlavi = povolena_pohlavi(p["pohlavi"], p["orientace"])
-            kandidati = [
-                k for k, v in PARTNERI.items()
-                if v["pohlavi"] in cilova_pohlavi and v["kde"] in ("venku", "oboje")
-            ]
+            kandidati = self.volni_kandidati(p, ("venku", "oboje"))
             if kandidati:
                 vybrany = random.choice(kandidati)
                 view = TinderView(self, ctx.author.id, [vybrany], je_venku=True)
