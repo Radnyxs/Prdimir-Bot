@@ -1372,6 +1372,43 @@ class Hazard(commands.Cog):
         self.db.nastav(ctx.author.id, partner_id=None, spokojenost=100)
         await ctx.send(f"💔 Rozešel/a ses s **{pt['jmeno']}**. Jsi opět nezadaný/á.")
 
+    @commands.command(name="vztah", aliases=["partner", "relationship", "ztah"])
+    async def vztah(self, ctx, kdo: discord.User = None):
+        kdo = kdo or ctx.author
+        p = self.db.hrac(kdo.id)
+        _, pt = self.aktivni_partner(kdo.id)
+
+        if not pt:
+            e = discord.Embed(
+                title=f"💔 {kdo.display_name} je nezadaný/á",
+                description="Najdi si někoho přes `prd tinder` nebo na procházce `prd ven`.",
+                color=0x9E9E9E,
+            )
+            await ctx.send(embed=e)
+            return
+
+        kde_mapa = {"tinder": "🔥 PrdTinder", "venku": "🚶 Potkán/a venku", "oboje": "🔥🚶 Tinder i venku"}
+        cena_rande = 1500 * pt["narocnost"]
+
+        e = discord.Embed(
+            title=f"❤️ {kdo.display_name} je ve vztahu s {pt['jmeno']}",
+            description=f"*{pt['bio']}*",
+            color=0xE91E63,
+        )
+        e.add_field(name="Povolání", value=pt["kategorie"], inline=True)
+        e.add_field(name="Náročnost", value="⭐" * pt["narocnost"], inline=True)
+        e.add_field(name="Seznámení", value=kde_mapa.get(pt["kde"], pt["kde"]), inline=True)
+        e.add_field(name="✨ Pasivní schopnost", value=pt["buff_popis"], inline=False)
+        e.add_field(name="Cena rande", value=kc(cena_rande), inline=True)
+
+        zbyva = RANDE_COOLDOWN - (time.time() - p["last_rande"])
+        if zbyva > 0:
+            rande_txt = f"⏳ za {cas(zbyva)}"
+        else:
+            rande_txt = "✅ můžete hned (`prd rande`)"
+        e.add_field(name="Další rande", value=rande_txt, inline=True)
+        await ctx.send(embed=e)
+
     # ---------------------------------------------------------- peníze
     @commands.command(name="balance", aliases=["bal", "penize", "zustatek", "profil"])
     async def balance(self, ctx, kdo: discord.User = None):
@@ -1432,7 +1469,7 @@ class Hazard(commands.Cog):
             await ctx.send(gif_url)
 
         # Malá 10% šance při žebrání na ulici potkat partnera z ulice
-        _, aktivni_pt, _ = self.aktivni_partner(ctx.author.id)
+        _, aktivni_pt = self.aktivni_partner(ctx.author.id)
         if not aktivni_pt and random.random() < 0.10:
             cilova_pohlavi = povolena_pohlavi(p["pohlavi"], p["orientace"])
             kandidati = [
@@ -2235,6 +2272,7 @@ class Hazard(commands.Cog):
                 "`prd orientace <hetero/bi/homo>` – Nastaví koho hledáš\n"
                 "`prd tinder` – Swipování na randící appce\n"
                 "`prd ven` – Procházka venku (šance potkat někoho na ulici)\n"
+                "`prd vztah [@uživatel]` – Ukáže partnera, jeho pasivní schopnost a stav rande\n"
                 "`prd rande` – Pozve partnera na rande a zvedne spokojenost\n"
                 "`prd darek <item>` – Daruje partnerovi item z inventáře\n"
                 "`prd rozchod` – Ukončí aktuální vztah"
