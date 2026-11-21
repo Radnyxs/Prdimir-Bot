@@ -15,9 +15,9 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gambling.db"
 # ---------------------------------------------------------------- nastavení
 ZISK_BEDNY = 0.9         # cena bedny = průměrná hodnota obsahu * zadaná hodnota
 BEG_COOLDOWN = 30        # sekundy mezi žebráním
-VEN_COOLDOWN = 60       # sekundy mezi procházkami venku
-RANDE_COOLDOWN = 300    # sekundy mezi rande
-PRACE_COOLDOWN = 180     # sekundy mezi pokusy o přijetí do práce
+VEN_COOLDOWN = 30        # sekundy mezi procházkami venku
+RANDE_COOLDOWN = 300     # sekundy mezi rande
+PRACE_COOLDOWN = 120     # sekundy mezi pokusy o přijetí do práce
 MESIC_SEKUND = 6 * 3600  # jeden "měsíc" ve hře = 6 hodin reálného času
 MAX_MESICU = 3           # kolik měsíců výplaty se může nahromadit
 MAX_OTEVRENI = 1000      # kolik beden najednou
@@ -29,6 +29,7 @@ POVOLENE_KANALY = [
     1481018108809314468, # pokec 2
     1481018152816083065, # pokec 3
     1481044760582951146, # Soukromý e-sex
+    1481019573560938577, # brikule
 ]
 
 # ---------------------------------------------------------------- rarity
@@ -67,9 +68,9 @@ BEDNY_DATA = {
             ("P06", "🃏 Pokémon karta (podezřele pravá)", "rare", 1500),
             ("P07", "🪎 Dědův poklad z půdy", "epic", 3500),
             ("P08", "🦷 FlyGunův zub", "epic", 5000),
-            ("P09", "🎫🍫 Zlatý lístek Willyho Wonky", "legendary", 15000),
+            ("P09", "🎫🍫 Zlatý lístek Willyho Wonky", "legendary", 25000),
             ("P10", "🚽🪙 Zlatý záchod", "godlike", 120000),
-            ("P11", "🗑️🛸 Popelnice z jiné dimenze", "voidborn", 600000),
+            ("P11", "💰🤫 Darda peněz", "voidborn", 550000),
         ],
     },
     "hospoda": {
@@ -83,11 +84,11 @@ BEDNY_DATA = {
             ("H04", "🥃 Panák whiskey", "uncommon", 200),
             ("H05", "🐱 Hospodská kočka (plyšová)", "rare", 599),
             ("H06", "🚰 Zlatý kohoutek", "rare", 900),
-            ("H07", "🪟 Stolek u okna (rezervovaný)", "epic", 4000),
+            ("H07", "🪟 Stolek u okna (rezervovaný)", "epic", 4500),
             ("H08", "👗 Šaty barmanovy ex z Louis Vuitton", "epic", 6999),
-            ("H09", "💶🤑 Věčný účet u barmana", "legendary", 20000),
+            ("H09", "💶🤑 Věčný účet u barmana", "legendary", 35000),
             ("H10", "🍻👑 Zlatý půllitr šampiona", "godlike", 139999),
-            ("H11", "🍺♾️ Pivo, které nikdy nedojde", "voidborn", 800000),
+            ("H11", "🍺♾️ Průkaz na nekonečnou zásobu piv", "voidborn", 750000),
         ],
     },
     "vesmir": {
@@ -103,9 +104,9 @@ BEDNY_DATA = {
             ("K06", "🛰️ Kus satelitu", "rare", 6999),
             ("K07", "🌐 Hologram planety Země", "epic", 44999),
             ("K08", "🕳️ Mini černá díra v lahvičce", "epic", 55999),
-            ("K09", "👽🛸 Mimozemská technologie", "legendary", 109999),
-            ("K10", "🪐💍 Prsten planety Jupiter", "godlike", 300000),
-            ("K11", "👁️🌫️ Oko Prázdnoty", "voidborn", 1500000),
+            ("K09", "👽🛸 Mimozemská technologie", "legendary", 225000),
+            ("K10", "🪐💍 Prsten planety Jupiter", "godlike", 1000000),
+            ("K11", "👁️🌑 Oko Prázdnoty", "voidborn", 4000000),
         ],
     },
     "ruda": {
@@ -113,14 +114,14 @@ BEDNY_DATA = {
         "emoji": "💍",
         "popis": "Všechny vzácné rudy v jedné bedně.",
         "itemy": [
-            ("R01", "🌱 Hlína ze zahrady", "common", 15),
-            ("R02", "🔥 Uhlí (100kg)", "uncommon", 249),
-            ("R03", "🔨 Železo (1t)", "rare", 2500),
-            ("R04", "🔶 Měď (50kg) - cigánský sen", "epic", 20000),
-            ("R05", "🏅 Zlato (100g)", "epic", 199999),
-            ("R06", "🟩🍀 Jadeit (10g)", "legendary", 499999),
-            ("R07", "💎💍 Diamant (5g)", "godlike", 2499999),
-            ("R08", "🟣💥 Antimatter (1μg)", "voidborn", 29999999),
+            ("R01", "🌱 Hlína ze zahrady", "common", 150),
+            ("R02", "🔥 Uhlí (100kg)", "uncommon", 500),
+            ("R03", "🔨 Železo (1t)", "rare", 4000),
+            ("R04", "🔶 Měď (50kg) - cigánský sen", "epic", 40000),
+            ("R05", "🏅 Zlato (100g)", "epic", 150000),
+            ("R06", "🟩🍀 Jadeit (10g)", "legendary", 500000),
+            ("R07", "💎💍 Diamant (5g)", "godlike", 2500000),
+            ("R08", "🟣💥 Antimatter (1μg)", "voidborn", 20000000),
         ],
     },
     "super": {
@@ -165,14 +166,65 @@ for _klic, _cfg in BEDNY_DATA.items():
         "cena": int(round(_ev * ZISK_BEDNY / 10) * 10),
     }
 
+# ---------------------------------------------------------------- perma upgrady (levely 1–5)
+UPGRADY = {
+    "stesti": {
+        "nazev": "🦹 Manipulátor štěstí",
+        "popis": "Zvyšuje šanci na lepší rarity při otevírání beden (`prd bedny`).",
+        "max_level": 5,
+        "ceny": [400000, 2000000, 10000000, 50000000, 250000000],
+        "bonus_za_lvl": 0.04,
+        "jednotka": "% 🍀",
+    },
+    "zebrani": {
+        "nazev": "🪙 Zlatý dotek",
+        "popis": "Zvyšuje výdělky při žebrání (`prd zebrat`).",
+        "max_level": 5,
+        "ceny": [40000, 1000000, 40000000, 100000000, 500000000],
+        "bonus_za_lvl": 0.08,
+        "jednotka": "% 💶",
+    },
+    "plat": {
+        "nazev": "💼 Kariérní postup",
+        "popis": "Zvyšuje výplatu z práce (`prd vyplata`).",
+        "max_level": 5,
+        "ceny": [500000, 7500000, 50000000, 300000000, 1000000000],
+        "bonus_za_lvl": 0.05,
+        "jednotka": "% 💶",
+    },
+    "kasino": {
+        "nazev": "🎰 Kompetitivní gambler",
+        "popis": "Zvyšuje výhry v kasinu (sloty, blackjack, poker, ruleta).",
+        "max_level": 5,
+        "ceny": [40000, 1000000, 40000000, 100000000, 500000000],
+        "bonus_za_lvl": 0.04,
+        "jednotka": "% 💶",
+    },
+    "konzultant": {
+        "nazev": "🤝 Konzultant",
+        "popis": "Zvyšuje šanci na přijetí do práce (`prd prace`).",
+        "max_level": 5,
+        "ceny": [250000, 2500000, 25000000, 100000000, 400000000],
+        "bonus_za_lvl": 0.08,
+        "jednotka": "% 🍀",
+    },
+}
+
+
+def uprav_vahy_bedny(kody, zakladni_vahy, level_stesti):
+    """Upraví váhy itemů podle levelu upgradu 'stesti' (0–5)."""
+    if level_stesti <= 0:
+        return zakladni_vahy
+    nasobic_kroku = 1.0 + (level_stesti * UPGRADY["stesti"]["bonus_za_lvl"])
+    upravene = []
+    for kod, w in zip(kody, zakladni_vahy):
+        poradi = RARITY[ITEMS[kod]["rarita"]]["poradi"]
+        koef = nasobic_kroku ** ((poradi - 2) * 0.5)
+        upravene.append(max(0.0001, w * koef))
+    return upravene
+
+
 # ---------------------------------------------------------------- partneři (Tinder & venku)
-# pohlavi: "zena" nebo "muz"
-# kde: "tinder", "venku", nebo "oboje"
-# buff_typ:
-#   - "plat"        -> zvýší výplatu z práce o (buff_hodnota * 100) %
-#   - "sleva_bedny" -> zlevní bedny o (buff_hodnota * 100) %
-#   - "kasino"      -> zvýší výhry ve slotech, blackjacku, pokeru i ruletě o (buff_hodnota * 100) %
-#   - "kapesne"     -> při každém rande ti dá kapesné ve výši buff_hodnota (v Kč)
 PARTNERI = {
     # --- ŽENY ---
     "magda_ucetni": {
@@ -229,6 +281,18 @@ PARTNERI = {
         "kde": "venku",
         "kategorie": "Dcera kmotra",
         "bio": "Seděla sama v zapadlém baru. Nikdo se jí neodváží odporovat, od pohledu vypadá jako alt mamina.",
+        "sance_match": 0.30,
+        "narocnost": 3,
+        "buff_typ": "plat",
+        "buff_hodnota": 0.35,
+        "buff_popis": "🪎 +35 % k výplatě z práce",
+    },
+    "aneta_pravnicka": {
+        "jmeno": "Aneta (29)",
+        "pohlavi": "zena",
+        "kde": "tinder",
+        "kategorie": "Právnička",
+        "bio": "právnička 🤪\ncats <3",
         "sance_match": 0.30,
         "narocnost": 3,
         "buff_typ": "plat",
@@ -297,6 +361,18 @@ PARTNERI = {
         "buff_hodnota": 0.15,
         "buff_popis": "👑 +15 % k výhrám v kasinu",
     },
+    "frantisek_spolu": {
+        "jmeno": "František (20)",
+        "pohlavi": "muz",
+        "kde": "tinder",
+        "kategorie": "Spolumajitel kasina",
+        "bio": "spolumajitel kasina\n185cm\njestli jste chudy nemluvte na me",
+        "sance_match": 0.25,
+        "narocnost": 3,
+        "buff_typ": "kasino",
+        "buff_hodnota": 0.12,
+        "buff_popis": "🃏 +12 % k výhrám v kasinu",
+    },
 }
 
 # ---------------------------------------------------------------- práce a žebrání
@@ -331,29 +407,36 @@ PRACE = {
 }
 
 ZEBRANI = [
-    (0.25, ["Patrick Jane odrbal kasino v Praze a dal ti půlku výdělků.", "https://tenor.com/view/patrick-jane-simon-baker-gif-16469773169763019049"], 250000, 300000),
-    (0.25, ["Na zahradu ti spadl vzácný lunární meteorit, oh no!! Jdeš ho prodat...ou jes.", "https://tenor.com/view/boom-bomb-explosion-iron-man-tony-stark-gif-15429820"], 130000, 200000),
-    (0.25, ["Dostal/a jsi perník od Heisenberga a prodal/a ho.", "https://tenor.com/view/walter-white-meth-gif-26319392"], 100000, 120000),
-    (0.25, ['Přišel businessman a řekl ti "Tady máš, zainvestuj to."', 'https://tenor.com/view/anonymous-foundation-make-money-foundation-gif-15622453'], 50000, 50000),
-    (0.25, ["RAMky jsou v dnešní době drahý...ou co to je tam za rohem?...Nic, podívej se do kapsy. :-)", "https://tenor.com/view/el-luchito-con-la-ram-gif-15851431"], 35000, 60000),
-    (0.25, ["Tvé smysly zaznamenaly rozbitý bankomat...infinite money glitch?", "https://tenor.com/view/money-money-money-gif-15228319"], 30000, 55000),
-    (0.5, ["Ó hele, strom peněžník!", "https://tenor.com/view/shake-money-grows-on-tree-money-rain-level-up-mafia-boss-gif-14984899"], 15000, 20000),
-    (0.5, ["Přišel skutečný MrBeast!! Co tu dělá?", "https://tenor.com/view/mr-beast-meme-little-beast-ireetable-gif-1335428652767034021"], 10000, 25000),
-    (1, "NVIDIA CEO Jensen Huang ti dal nabídku, jestli bys nechtěl/a aféru.", 5000, 10000),
-    (1.5, "GTA 6 vychází!! Nějakej borec ti na ní dal prachy.", 2500, 4000),
-    (2, "Dnes prdění na Karlově mostě, překvapivě to fungovalo.", 500, 1500),
-    (2, "Sponzorováno Izraelem. 🇮🇱", 2000, 2000),
-    (2, "Z nebes na tebe spadla tisícovka, vau!", 1000, 1000),
-    (2, ["Všiml si tě budget MrBeast a doufáš, že ti dá majlant.", "Paní v obleku ti řekla, ať jdeš k barberovi."], 500, 1500),
-    (5, 'Příspěvek na hru "Sex with Hitler 2"', 250, 400),
-    (5, "Prdnul/a sis a turista to vzal jako magický trik.", 200, 500),
-    (5, "Dal/a sis 1v1 v Clash Royale proti kolemjdoucímu, výhra!!", 300, 450),
-    (16, "Nějaká babička ti hodila drobné do kelímku.", 10, 50),
-    (16, ['Přišlo děcko a zařvalo "SIX SEVEN".', "Borec stál před tebou 5 minut s peněženkou a počítal, aby ti dal přesně 67 Kč."], 67, 67),
-    (15, "Turista tě vzal za pouličního umělce a dal ti slušné spropitné.", 50, 200),
-    (10, ["Pod lavičkou jsi našel/a zapomenutou stokorunu.", "Ahoj, tady Prdimír, tady máš kilčo na štrúdl."], 100, 100),
-    (5, ["Nějaký chlápek ti dal rovnou celou kapesní kasičku.", "Dostal/a jsi příspěvek na dobrý kebab."], 200, 400),
-    (10, "Nikdo si tě nevšiml. Jen jedna holubice ti něco hodila na hlavu.", 0, 0),
+    (0.15, ["💎 Patrick Jane odrbal kasino v Praze a dal ti půlku výdělků.", "https://tenor.com/view/patrick-jane-simon-baker-gif-16469773169763019049"], 1000000, 1800000),
+    (0.15, ["💎 I wish for a million Czech korunas.", "https://tenor.com/view/one-wish-willow-obsession-obsession-movie-gif-17724909140444967266"], 1000000, 1000000),
+    (0.25, ["💰 Elon Musk ti naboural auto a dal ti peníze, abys o tom nemluvil/a.", "https://tenor.com/view/elon-musk-this-is-elon-musk-musk-tesla-egifmeme-gif-13716021226937735268"], 300000, 350000),
+    (0.25, ["💰 Na zahradu ti spadl vzácný meteorit, oh no!! Jdeš ho prodat...ou jes.", "https://tenor.com/view/boom-bomb-explosion-iron-man-tony-stark-gif-15429820"], 130000, 200000),
+    (0.25, ["💰 Přišel Tung Tung Tung Sahur a pomohl ti v těchto těžkých dobách.", "https://tenor.com/view/tund-tung-tung-sahur-tung-sahur-god-tung-tung-god-gif-16981336594469771983"], 150000, 180000),
+    (0.25, ["💰 Dostal/a jsi perník od Heisenberga a prodal/a ho.", "https://tenor.com/view/walter-white-meth-gif-26319392"], 100000, 120000),
+    (0.25, ["💰 Pozval/a jsi paní v baru na drink. Dala ti za tvoji odvahu menší příspěvek.", "https://tenor.com/view/jadeyanh-itsjadeyanh-smoking-smoke-twitch-gif-823405229271322418"], 75000, 150000),
+    (0.25, ['💰 Přišel businessman a řekl ti "Tady máš, zainvestuj to."', 'https://tenor.com/view/anonymous-foundation-make-money-foundation-gif-15622453'], 50000, 50000),
+    (0.25, ["💰 RAMky jsou v dnešní době drahý...ou co to je tam za rohem?...Nic, podívej se do kapsy. :-)", "https://tenor.com/view/el-luchito-con-la-ram-gif-15851431"], 35000, 60000),
+    (0.35, ["💰 Tvé smysly zaznamenaly rozbitý bankomat...infinite money glitch?", "https://tenor.com/view/money-money-money-gif-15228319"], 30000, 55000),
+    (0.5, ["💰 Přišla k tobě goth mamina a nabídla ti pomoc.", "https://tenor.com/view/tss-the-starlight-shuttle-starlight-shuttle-jade-gif-9680314700801325003"], 20000, 30000),
+    (0.5, ["💰 Ó hele, kytička penížkovka!", "https://tenor.com/view/money-gif-4800625"], 20000, 25000),
+    (0.5, ["💰 Získal/a jsi peníze ze své malé Roblox hry.", "https://tenor.com/view/xafer-roblox-robux-mrbeast-gif-2262045341761960066"], 20000, 25000),
+    (1.1, "💶 Vyměnil/a jsi žárovku businessmance u ní doma.", 6500, 10000),
+    (1.2, "💶 NVIDIA CEO Jensen Huang ti dal nabídku, jestli bys nechtěl/a aféru.", 5000, 9000),
+    (1.3, ["💶 my bank account today 💔", "https://cdn.discordapp.com/attachments/614333245458481154/1573444640265211975/image.png?ex=6b020803&is=6b00b683&hm=759ddf4de508f33f77715501d62429f75c9640c8a5bfd6bac46514973aac45b9&"], 6767, 6767, True),
+    (1.5, "💶 GTA 6 vychází!! Nějakej borec ti na ní dal prachy.", 2500, 4000),
+    (2, "💶 Dnes prdění na Karlově mostě, překvapivě to fungovalo.", 700, 1500),
+    (2, "💶 Sponzorováno Izraelem. 🇮🇱", 2000, 2000),
+    (2, "💶 Z nebes na tebe spadla tisícovka, vau!", 1000, 1000, True),
+    (2, random.choice(["💶 Všiml si tě budget MrBeast a doufáš, že ti dá majlant.", "💶 Paní v obleku ti řekla, ať jdeš k barberovi."]), 600, 1500),
+    (5, random.choice(['🪙 Příspěvek na hru "Sex with Hitler 2"', "🪙 Penízky na lahodnou pizzu tvého výběru."]), 250, 400),
+    (5, "🪙 Prdnul/a sis a turista to vzal jako magický trik.", 200, 500),
+    (5, "🪙 Dal/a sis 1v1 v Clash Royale proti kolemjdoucímu, výhra!!", 300, 450),
+    (15, "🪙 Nějaká babička ti hodila drobné do kelímku.", 40, 100),
+    (15, random.choice(['🪙 Přišlo děcko a zařvalo "SIX SEVEN".', "🪙 Borec stál před tebou 5 minut s peněženkou a počítal, aby ti dal přesně 67 Kč."]), 67, 67, True),
+    (15, "🪙 Turista tě vzal za pouličního umělce a dal ti slušné spropitné.", 50, 200),
+    (10, random.choice(["🪙 Pod lavičkou jsi našel/a zapomenutou stokorunu.", "🪙 Ahoj, tady Prdimír, tady máš kilčo na štrúdl.", "🪙 Abrakadabra, stokorunus spawnus!!"]), 100, 100, True),
+    (5, random.choice(["🪙 Nějaký chlápek ti dal rovnou celou kapesní kasičku.", "🪙 Dostal/a jsi příspěvek na dobrý kebab."]), 200, 400),
+    (8, "😬 Nikdo si tě nevšiml. Jen jedna holubice ti něco hodila na hlavu.", 0, 0),
 ]
 
 
@@ -421,7 +504,6 @@ def povolena_pohlavi(pohlavi: str, orientace: str) -> set[str]:
         return {"muz", "zena"}
     if o == "homo":
         return {"muz"} if p == "muz" else {"zena"}
-    # default hetero
     return {"zena"} if p == "muz" else {"muz"}
 
 
@@ -464,6 +546,12 @@ class Databaze:
                 shares REAL NOT NULL,
                 invested_czk REAL NOT NULL,
                 PRIMARY KEY (user_id, symbol)
+            );
+            CREATE TABLE IF NOT EXISTS upgrades (
+                user_id     INTEGER NOT NULL,
+                upgrade_key TEXT NOT NULL,
+                level       INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (user_id, upgrade_key)
             );
         """)
         self.con.commit()
@@ -561,6 +649,42 @@ class Databaze:
         self.con.execute("UPDATE players SET balance = balance + ? WHERE user_id=?", (int(castka), uid))
         self.con.commit()
 
+    # --- perma upgrady
+    def get_upgrades(self, uid):
+        rows = self.con.execute(
+            "SELECT upgrade_key, level FROM upgrades WHERE user_id=?", (uid,)
+        ).fetchall()
+        data = {k: 0 for k in UPGRADY}
+        for r in rows:
+            if r["upgrade_key"] in data:
+                data[r["upgrade_key"]] = r["level"]
+        return data
+
+    def get_upgrade_level(self, uid, key):
+        r = self.con.execute(
+            "SELECT level FROM upgrades WHERE user_id=? AND upgrade_key=?", (uid, key)
+        ).fetchone()
+        return r["level"] if r else 0
+
+    def koupit_upgrade(self, uid, key):
+        cfg = UPGRADY[key]
+        lvl = self.get_upgrade_level(uid, key)
+        if lvl >= cfg["max_level"]:
+            return "max", lvl, 0
+        cena = cfg["ceny"][lvl]
+        zustatek = self.hrac(uid)["balance"]
+        if zustatek < cena:
+            return "penize", lvl, cena
+        novy_lvl = lvl + 1
+        self.con.execute("UPDATE players SET balance = balance - ? WHERE user_id=?", (cena, uid))
+        self.con.execute(
+            "INSERT INTO upgrades (user_id, upgrade_key, level) VALUES (?, ?, ?) "
+            "ON CONFLICT(user_id, upgrade_key) DO UPDATE SET level = excluded.level",
+            (uid, key, novy_lvl),
+        )
+        self.con.commit()
+        return "ok", novy_lvl, cena
+
     # --- inventář
     def pocet(self, uid, kod):
         r = self.con.execute("SELECT count FROM inventory WHERE user_id=? AND item_code=?",
@@ -609,6 +733,19 @@ class Databaze:
         self.con.execute("UPDATE players SET balance = balance + ? WHERE user_id=?", (castka, uid))
         self.con.commit()
         return True
+
+    def prodat_vse(self, uid):
+        """Prodá botovi celý inventář (jen známé itemy). Vrací (počet kusů, vyplacená částka)."""
+        self.hrac(uid)
+        inv = {k: c for k, c in self.inventar(uid).items() if k in ITEMS}
+        if not inv:
+            return 0, 0
+        castka = sum(ITEMS[k]["hodnota"] * c for k, c in inv.items())
+        for k, c in inv.items():
+            self._odeber_item(uid, k, c)
+        self.con.execute("UPDATE players SET balance = balance + ? WHERE user_id=?", (castka, uid))
+        self.con.commit()
+        return sum(inv.values()), castka
 
     def vymena(self, a, a_kod, b, b_kod):
         if self.pocet(a, a_kod) < 1 or self.pocet(b, b_kod) < 1:
@@ -753,7 +890,6 @@ class TinderView(discord.ui.View):
         pt = PARTNERI[klic]
         p = self.cog.db.hrac(self.user_id)
 
-        # Bonus k šanci na match podle bohatství a práce
         bonus_sance = 0.0
         if p["balance"] >= 500000:
             bonus_sance += 0.15
@@ -823,7 +959,6 @@ class TinderView(discord.ui.View):
 
         if random.random() < efektivni_sance:
             if not self.cog.db.zabrat_partnera(self.user_id, klic):
-                # někdo byl o chlup rychlejší
                 if not self._odstran_obsazene():
                     await self._nikdo_volny(interaction)
                     return
@@ -1003,10 +1138,10 @@ class BlackjackView(discord.ui.View):
             d_score = self.skore(self.dealer_hand)
 
         if d_score > 21 or p_score > d_score:
-            bonus = self.cog.ziskej_buff(self.ctx.author.id, "kasino")
+            bonus = self.cog.celkovy_bonus_kasino(self.ctx.author.id)
             vynos = int(self.bet * 2 * (1 + bonus))
             self.cog.db.pricti(self.ctx.author.id, vynos)
-            extra = f" *(+{int(bonus * 100)}% bonus od partnera)*" if bonus > 0 else ""
+            extra = f" *(+{int(round(bonus * 100))}% bonus)*" if bonus > 0 else ""
             e = discord.Embed(
                 title="🃏 Blackjack – Výhra! 👑",
                 description=f"Vyhráváš **{kc(vynos)}**{extra}! ({p_score} vs {d_score})",
@@ -1156,13 +1291,13 @@ class PokerView(discord.ui.View):
             child.disabled = True
 
         nazev_kombinace, nasobek = self.vyhodnot_ruku(self.hand)
-        bonus = self.cog.ziskej_buff(self.ctx.author.id, "kasino")
+        bonus = self.cog.celkovy_bonus_kasino(self.ctx.author.id)
         vyhra = int(self.bet * nasobek * (1 + bonus))
 
         if vyhra > 0:
             self.cog.db.pricti(self.ctx.author.id, vyhra)
             barva = 0x2ECC71
-            extra = f" *(+{int(bonus * 100)}% bonus od partnera)*" if bonus > 0 else ""
+            extra = f" *(+{int(round(bonus * 100))}% bonus)*" if bonus > 0 else ""
             popis = f"{format_karty(self.hand)}\n\n**{nazev_kombinace}**\nVyhráváš **{kc(vyhra)}** (`{nasobek}×`){extra}!"
         else:
             barva = 0xF44336
@@ -1244,6 +1379,15 @@ class Hazard(commands.Cog):
             return pt["buff_hodnota"]
         return 0
 
+    def ziskej_upgrade_bonus(self, uid, key):
+        lvl = self.db.get_upgrade_level(uid, key)
+        if lvl <= 0 or key not in UPGRADY:
+            return 0.0
+        return lvl * UPGRADY[key]["bonus_za_lvl"]
+
+    def celkovy_bonus_kasino(self, uid):
+        return self.ziskej_buff(uid, "kasino") + self.ziskej_upgrade_bonus(uid, "kasino")
+
     def item_embed(self, kod):
         it = ITEMS[kod]
         r = RARITY[it["rarita"]]
@@ -1261,6 +1405,56 @@ class Hazard(commands.Cog):
             majitele = f"**{n}** hráčů vlastní tento item (celkem {k} ks)"
         e.add_field(name="👥 Majitelé", value=majitele, inline=False)
         return e
+
+    # ---------------------------------------------------------- perma upgrady
+    @commands.command(name="vylepseni", aliases=["upgrades", "upgrady"])
+    async def upgrady(self, ctx, kdo: discord.User = None):
+        kdo = kdo or ctx.author
+        stav = self.db.get_upgrades(kdo.id)
+        e = discord.Embed(
+            title=f"🛠️ Permanentní upgrady: {kdo.display_name}",
+            description="Nákup: `prd buyupg <kód>`",
+            color=0x00BCD4,
+        )
+        for key, cfg in UPGRADY.items():
+            lvl = stav[key]
+            akt_bonus = int(round(lvl * cfg["bonus_za_lvl"] * 100))
+            if lvl >= cfg["max_level"]:
+                cena_txt = "**MAX LEVEL**"
+                dalsi_txt = ""
+            else:
+                dalsi_bonus = int(round((lvl + 1) * cfg["bonus_za_lvl"] * 100))
+                cena_txt = f"Cena: *{kc(cfg['ceny'][lvl])}*"
+                dalsi_txt = f" → **+{dalsi_bonus} {cfg['jednotka']}**"
+            e.add_field(
+                name=f"{cfg['nazev']} (`{key}`) — Lv. {lvl}/{cfg['max_level']}",
+                value=f"{cfg['popis']}\n**+{akt_bonus} {cfg['jednotka']}**{dalsi_txt}\n{cena_txt}",
+                inline=False,
+            )
+        await ctx.send(embed=e)
+
+    @commands.command(name="buyupg", aliases=["buyupgrade", "upgrade", "koupitupgrade", "koupitupg"])
+    async def koupitupgrade(self, ctx, key: str = None):
+        if not key or key.lower() not in UPGRADY:
+            kody_txt = ", ".join(f"`{k}`" for k in UPGRADY)
+            await ctx.send(f"❌ Zadej platný kód upgradu: {kody_txt}\nPřehled: `prd upgrady`")
+            return
+
+        k = key.lower()
+        stav, lvl, info = self.db.koupit_upgrade(ctx.author.id, k)
+        cfg = UPGRADY[k]
+
+        if stav == "max":
+            await ctx.send(f"⭐ Upgrade **{cfg['nazev']}** už máš na maximálním levelu `{lvl}/{cfg['max_level']}`!")
+        elif stav == "penize":
+            ma = self.db.hrac(ctx.author.id)["balance"]
+            await ctx.send(f"❌ Na level `{lvl + 1}` upgradu **{cfg['nazev']}** potřebuješ **{kc(info)}**, máš jen {kc(ma)}.")
+        else:
+            bonus_pct = int(round(lvl * cfg["bonus_za_lvl"] * 100))
+            await ctx.send(
+                f"✅ Koupil/a jsi **{cfg['nazev']}** na **Level {lvl}/{cfg['max_level']}** za **{kc(info)}**!\n"
+                f"Aktuální bonus: **+{bonus_pct} {cfg['jednotka']}**"
+            )
 
     # ---------------------------------------------------------- vztahy a seznamka
     @commands.command(name="pohlavi", aliases=["gender"])
@@ -1317,7 +1511,6 @@ class Hazard(commands.Cog):
         self.db.nastav(ctx.author.id, last_venku=time.time())
         _, aktivni_pt = self.aktivni_partner(ctx.author.id)
 
-        # 50 % šance potkat někoho venku (pokud je hráč nezadaný)
         if not aktivni_pt and random.random() < 0.50:
             kandidati = self.volni_kandidati(p, ("venku", "oboje"))
             if kandidati:
@@ -1329,7 +1522,7 @@ class Hazard(commands.Cog):
         udalosti = [
             ("Pomohl/a jsi slečně s těžkými taškami, dobrý skutek!!", 100),
             ("Prošel/a ses po parku a našel/a na zemi drobné.", 150),
-            ("Vrazil/a jsi do pouličního kouzelníka, dal ti stovku za asistenci.", 100),
+            ("Střetl/a jsi pouličního kouzelníka, dal ti stovku za asistenci.", 100),
             ("Prošel/a ses kolem kasina, ale nikdo zajímavý nešel kolem.", 0),
             ("Našel/a jsi ztracenou dvoustovku u zastávky tramvaje.", 200),
         ]
@@ -1368,7 +1561,7 @@ class Hazard(commands.Cog):
             extra_text = f"\n💎 **{pt['jmeno']}** ti navíc dal/a kapesné **+{kc(kapesne)}**!"
 
         await ctx.send(
-            f"🥂 Vzal/a jsi **{pt['jmeno']}** na rande za **{kc(cena_rande)}**!\n"
+            f"🥂 Vzal/a jsi **{pt['jmeno']}** na rande za **{kc(cena_rande)}**!{extra_text}"
         )
 
     @commands.command(name="darek", aliases=["gift"])
@@ -1390,19 +1583,9 @@ class Hazard(commands.Cog):
         self.db._odeber_item(ctx.author.id, kod, 1)
         self.db.con.commit()
 
-        # Přírůstek spokojenosti podle hodnoty darovaného itemu
-        if it["hodnota"] >= 5000:
-            plus = 50
-        elif it["hodnota"] >= 500:
-            plus = 25
-        elif it["hodnota"] >= 100:
-            plus = 12
-        else:
-            plus = 5
-
         self.db.nastav(ctx.author.id, last_rande=time.time())
         await ctx.send(
-            f"🎁 Daroval/a jsi **{it['nazev']}** partnerovi **{pt['jmeno']}**!\n"
+            f"🎁 Daroval/a jsi **{it['nazev']}** partnerovi **{pt['jmeno']}**!"
         )
 
     @commands.command(name="rozchod", aliases=["breakup"])
@@ -1459,6 +1642,7 @@ class Hazard(commands.Cog):
         inv = self.db.inventar(kdo.id)
         job = PRACE.get(p["job_id"]) if p["job_id"] else None
         _, pt = self.aktivni_partner(kdo.id)
+        upgs = self.db.get_upgrades(kdo.id)
 
         pohlavi_txt = "Muž ♂️" if p["pohlavi"] == "muz" else "Žena ♀️"
         orientace_mapa = {"hetero": "Hetero", "bi": "Bi", "homo": "Homo"}
@@ -1469,6 +1653,9 @@ class Hazard(commands.Cog):
         e.add_field(name="Celkový majetek", value=kc(self.majetek(kdo.id, p["balance"], inv)))
         e.add_field(name="Profil", value=f"{pohlavi_txt} • {orientace_txt}", inline=True)
         e.add_field(name="Práce", value=job["nazev"] if job else "nezaměstnaný", inline=True)
+
+        upg_souhrn = " • ".join(f"{UPGRADY[k]['nazev'].split()[0]} Lv.{v}" for k, v in upgs.items())
+        e.add_field(name="Perma upgrady", value=upg_souhrn, inline=True)
 
         if pt:
             vztah_txt = f"❤️ **{pt['jmeno']}**\n*{pt['buff_popis']}*"
@@ -1484,11 +1671,14 @@ class Hazard(commands.Cog):
         if zbyva > 0:
             await ctx.send(f"⏳ Chvíli se projdi, ať nejsi nápadný/á. Zkus to za {cas(zbyva)}.")
             return
-        _, text, lo, hi = random.choices(ZEBRANI, weights=[z[0] for z in ZEBRANI])[0]
+
+        vybrana = random.choices(ZEBRANI, weights=[z[0] for z in ZEBRANI])[0]
+        _, text, lo, hi = vybrana[:4]
+        bez_upgradu = bool(vybrana[4]) if len(vybrana) > 4 else False
+
         castka = random.randint(lo, hi) if hi != 0 else 0
         self.db.nastav(ctx.author.id, last_beg=time.time())
 
-        # Oprava pro hlášky se seznamem [text, gif_url] vs náhodný výběr z více textů
         gif_url = None
         if isinstance(text, list):
             if len(text) == 2 and text[1].startswith("http"):
@@ -1499,18 +1689,20 @@ class Hazard(commands.Cog):
             zprava_txt = text
 
         if castka > 0:
+            upg_bonus = 0.0 if bez_upgradu else self.ziskej_upgrade_bonus(ctx.author.id, "zebrani")
+            castka = int(round(castka * (1 + upg_bonus)))
+            extra = f"\n-# +{int(round(upg_bonus * 100))}% upgrade" if upg_bonus > 0 else ""
             self.db.pricti(ctx.author.id, castka)
-            await ctx.send(f"🪙 {zprava_txt}\n**+{kc(castka)}**")
+            await ctx.send(f"{zprava_txt}\n**+{kc(castka)}**{extra}")
         elif castka < 0:
             self.db.pricti(ctx.author.id, castka)
-            await ctx.send(f"🪙 {zprava_txt}\n**{kc(castka)}**")
+            await ctx.send(f"{zprava_txt}\n**{kc(castka)}**")
         else:
-            await ctx.send(f"🪙 {zprava_txt}")
+            await ctx.send(f"{zprava_txt}")
 
         if gif_url:
             await ctx.send(gif_url)
 
-        # Malá 10% šance při žebrání na ulici potkat partnera z ulice
         _, aktivni_pt = self.aktivni_partner(ctx.author.id)
         if not aktivni_pt and random.random() < 0.10:
             kandidati = self.volni_kandidati(p, ("venku", "oboje"))
@@ -1550,10 +1742,13 @@ class Hazard(commands.Cog):
 
         j = PRACE[klic]
         self.db.nastav(ctx.author.id, last_apply=time.time())
-        if random.random() < j["sance"]:
+        upg_bonus = self.ziskej_upgrade_bonus(ctx.author.id, "konzultant")
+        sance_prijeti = min(0.99, j["sance"] * (1 + upg_bonus))
+        if random.random() < sance_prijeti:
             self.db.nastav(ctx.author.id, job_id=klic, last_pay=time.time())
+            extra = f"\n-# +{int(round(upg_bonus * 100))}% upgrade" if upg_bonus > 0 else ""
             await ctx.send(f"🎉 Vzali tě! Jsi nový/á **{j['nazev']}**. "
-                           f"Plat {kc(j['plat'])} za měsíc, výplata přes `prd vyplata`.")
+                           f"Plat {kc(j['plat'])} za měsíc, výplata přes `prd vyplata`.{extra}")
         else:
             await ctx.send(f"📄 Na pozici **{j['nazev']}** tě nevzali. Zkus to znovu za {cas(PRACE_COOLDOWN)}.")
 
@@ -1564,7 +1759,7 @@ class Hazard(commands.Cog):
         mesice = min(int((time.time() - p["last_pay"]) // MESIC_SEKUND), MAX_MESICU)
         if mesice < 1:
             return 0, 0, 0
-        bonus = self.ziskej_buff(uid, "plat")
+        bonus = self.ziskej_buff(uid, "plat") + self.ziskej_upgrade_bonus(uid, "plat")
         castka = int(job["plat"] * mesice * (1 + bonus))
         self.db.pricti(uid, castka)
         self.db.nastav(uid, last_pay=time.time())
@@ -1581,7 +1776,7 @@ class Hazard(commands.Cog):
             zbyva = MESIC_SEKUND - (time.time() - p["last_pay"])
             await ctx.send(f"⏳ Šéf ti zatím nic nevyplatil. Další výplata za {cas(zbyva)}.")
             return
-        extra = f" *(včetně +{int(bonus * 100)}% bonusu od partnera)*" if bonus > 0 else ""
+        extra = f" *(včetně +{int(round(bonus * 100))}% bonusu)*" if bonus > 0 else ""
         await ctx.send(f"💵 Výplata za {mesice}× měsíc: **+{kc(castka)}**{extra}")
 
     @commands.command(name="vypoved", aliases=["quit"])
@@ -1648,7 +1843,7 @@ class Hazard(commands.Cog):
 
         await asyncio.sleep(0.75)
         vysledek = [random.choice(symboly) for _ in range(3)]
-        bonus = self.ziskej_buff(ctx.author.id, "kasino")
+        bonus = self.celkovy_bonus_kasino(ctx.author.id)
 
         vyhra = 0
         if vysledek[0] == vysledek[1] == vysledek[2]:
@@ -1669,7 +1864,7 @@ class Hazard(commands.Cog):
 
         if vyhra > 0:
             if bonus > 0:
-                zprava += f" *(+{int(bonus * 100)}% bonus od partnera)*"
+                zprava += f" *(+{int(round(bonus * 100))}% bonus)*"
             self.db.pricti(ctx.author.id, vyhra)
             barva = 0x2ECC71
         else:
@@ -1702,10 +1897,10 @@ class Hazard(commands.Cog):
 
         p_score = BlackjackView.skore(player_hand)
         if p_score == 21:
-            bonus = self.ziskej_buff(ctx.author.id, "kasino")
+            bonus = self.celkovy_bonus_kasino(ctx.author.id)
             vyhra = int(castka * 2.5 * (1 + bonus))
             self.db.pricti(ctx.author.id, vyhra)
-            extra = f" *(+{int(bonus * 100)}% bonus od partnera)*" if bonus > 0 else ""
+            extra = f" *(+{int(round(bonus * 100))}% bonus)*" if bonus > 0 else ""
             e = discord.Embed(
                 title="🃏 NATURAL BLACKJACK! 👑",
                 description=f"Rovných **21** hned z ruky! Vyhráváš **{kc(vyhra)}** (`2.5×`){extra}!",
@@ -1797,7 +1992,7 @@ class Hazard(commands.Cog):
             padla_barva = "cerna"
             barva_txt = f"⚫ Černá ({padlo})"
 
-        bonus = self.ziskej_buff(ctx.author.id, "kasino")
+        bonus = self.celkovy_bonus_kasino(ctx.author.id)
         vyhra = 0
         if typ == "cislo" and padlo == cislo_tip:
             vyhra = int(castka * 36 * (1 + bonus))
@@ -1808,10 +2003,10 @@ class Hazard(commands.Cog):
 
         if vyhra > 0:
             self.db.pricti(ctx.author.id, vyhra)
-            extra = f" *(+{int(bonus * 100)}% bonus od partnera)*" if bonus > 0 else ""
+            extra = f" *(+{int(round(bonus * 100))}% bonus)*" if bonus > 0 else ""
             e = discord.Embed(
                 title="🎡 Ruleta – Výhra!",
-                description=f"Kulička zastavila na: **{barva_txt}**\n\n🎉 Vyhráváš **{kc(vyhra)}**{extra}!",
+                description=f"Kulička zastavila na: **{barva_txt}**\n\n🎉 Vyhráváš **{kc(vyhra)}**{extra}",
                 color=0x2ECC71,
             )
         else:
@@ -1983,7 +2178,7 @@ class Hazard(commands.Cog):
         e.set_footer(text="Prodej své investice pomocí: prd prodatinvestici <symbol>")
         await ctx.send(embed=e)
 
-    @commands.command(name="prodatinvestici", aliases=["sellinvest", "vybratinvestici", "prodatinv", "sellinv"])
+    @commands.command(name="prodatinvestici", aliases=["sellinvest", "vybratinvestici"])
     async def prodatinvestici(self, ctx, symbol: str = None):
         if not symbol:
             await ctx.send("❌ Zadej symbol investice, kterou chceš prodat (např. `prd prodatinvestici NEVIDIMJA`).")
@@ -2015,7 +2210,15 @@ class Hazard(commands.Cog):
     @commands.command(name="bedny", aliases=["cases"])
     async def bedny(self, ctx):
         sleva = self.ziskej_buff(ctx.author.id, "sleva_bedny")
-        popis_extra = f"\n✨ *Máš aktivní slevu {int(sleva * 100)} % na bedny od partnera!*" if sleva > 0 else ""
+        lvl_stesti = self.db.get_upgrade_level(ctx.author.id, "stesti")
+        extra_radky = []
+        if sleva > 0:
+            extra_radky.append(f"✨ *Aktivní sleva {int(sleva * 100)} % na bedny od partnera!*")
+        if lvl_stesti > 0:
+            posun_rarity = lvl_stesti * UPGRADY["stesti"]["bonus_za_lvl"] * 100
+            extra_radky.append(f"-# *⬆️ +{posun_rarity:g}% posun rarity*")
+        popis_extra = ("\n" + "\n".join(extra_radky)) if extra_radky else ""
+
         e = discord.Embed(title="📦 Bedny",
                           description=f"Otevři příkazem `prd otevrit <bedna> [kolik]`{popis_extra}",
                           color=0xFF9800)
@@ -2040,7 +2243,7 @@ class Hazard(commands.Cog):
             radky.append(f"{barva}{r['nazev']}: {r['sance']} %\u001b[0m")
 
         sance = "```ansi\n" + "\n".join(radky) + "\n```"
-        e.add_field(name="Šance na rarity", value=sance, inline=False)
+        e.add_field(name="Základní šance na rarity", value=sance, inline=False)
         await ctx.send(embed=e)
 
     @commands.command(name="otevrit", aliases=["case", "oc"])
@@ -2055,7 +2258,9 @@ class Hazard(commands.Cog):
         b = BEDNY[bedna.lower()]
         sleva = self.ziskej_buff(ctx.author.id, "sleva_bedny")
         cena = int(b["cena"] * (1 - sleva)) * kolik
-        vypadle = random.choices(b["kody"], weights=b["vahy"], k=kolik)
+        lvl_stesti = self.db.get_upgrade_level(ctx.author.id, "stesti")
+        vahy = uprav_vahy_bedny(b["kody"], b["vahy"], lvl_stesti)
+        vypadle = random.choices(b["kody"], weights=vahy, k=kolik)
         zustatek = self.db.koupit_bedny(ctx.author.id, cena, vypadle)
         if zustatek is None:
             ma = self.db.hrac(ctx.author.id)["balance"]
@@ -2163,6 +2368,30 @@ class Hazard(commands.Cog):
             await ctx.send("❌ Tolik kusů nemáš.")
             return
         await ctx.send(f"💸 Prodal jsi {kolik}× **{ITEMS[kod]['nazev']}** za **{kc(castka)}**.")
+
+    @commands.command(name="prodatvse", aliases=["sellall", "prodatinv", "sellinv"])
+    async def prodatvse(self, ctx):
+        inv = {k: c for k, c in self.db.inventar(ctx.author.id).items() if k in ITEMS}
+        if not inv:
+            await ctx.send("🎒 V inventáři nemáš nic k prodeji.")
+            return
+        kusu = sum(inv.values())
+        castka = sum(ITEMS[k]["hodnota"] * c for k, c in inv.items())
+
+        def provest():
+            n, vyplaceno = self.db.prodat_vse(ctx.author.id)
+            if n == 0:
+                return False, "❌ V inventáři už nic nemáš."
+            return True, f"💸 Prodal jsi celý inventář ({n} kusů, {len(inv)} druhů) za **{kc(vyplaceno)}**."
+
+        e = discord.Embed(
+            title="💸 Prodat celý inventář?",
+            description=(f"Prodáš **{kusu}** kusů ({len(inv)} druhů) botovi za základní cenu "
+                         f"celkem **{kc(castka)}**.\nTohle nejde vzít zpět!"),
+            color=0xFF9800,
+        )
+        view = ObchodView(ctx.author.id, provest)
+        view.message = await ctx.send(embed=e, view=view)
 
     # ---------------------------------------------------------- obchodování
     @commands.command(name="trade", aliases=["vymena"])
@@ -2286,19 +2515,28 @@ class Hazard(commands.Cog):
     async def gambling_help(self, ctx):
         e = discord.Embed(
             title="🎰 Nápověda: Hazard & ekonomika",
-            description="Vydělávej prachy, otevírej bedny, sbírej vzácné itemy, investuj, randi a obchoduj.\nPrefix pro všechny příkazy je **`prd`**.",
+            description="Vydělávej prachy, otevírej bedny, sbírej vzácné itemy, kupuj perma upgrady, investuj, randi a obchoduj.\nPrefix pro všechny příkazy je **`prd`**.",
             color=0xFFC107
         )
 
         e.add_field(
             name="💰 Peníze a práce",
             value=(
-                "`prd balance [@uživatel]` – Tvůj zůstatek, vztah a celkový majetek\n"
+                "`prd balance [@uživatel]` – Tvůj zůstatek, vztah, upgrady a celkový majetek\n"
                 "`prd zebrat` – Vyžebráš drobné (cooldown 30 s)\n"
                 "`prd prace [id]` – Zobrazí nabídku prací nebo tě přihlásí\n"
                 "`prd vyplata` – Vybere nahromaděnou výplatu (1 měsíc = 6 h)\n"
                 "`prd vypoved` – Ukončí aktuální práci\n"
                 "`prd poslat [@uživatel] [částka]` – Pošleš uživateli danou částku"
+            ),
+            inline=False
+        )
+
+        e.add_field(
+            name="🛠️ Perma upgrady",
+            value=(
+                "`prd upgrady [@uživatel]` – Přehled tvých trvalých vylepšení (Lv. 1–5)\n"
+                "`prd buyupg <kód>` – Koupí další level"
             ),
             inline=False
         )
@@ -2311,7 +2549,7 @@ class Hazard(commands.Cog):
                 "`prd tinder` – Swipování na randící appce\n"
                 "`prd ven` – Procházka venku (šance potkat někoho na ulici)\n"
                 "`prd vztah [@uživatel]` – Ukáže partnera, jeho pasivní schopnost a stav rande\n"
-                "`prd rande` – Pozve partnera na rande a zvedne spokojenost\n"
+                "`prd rande` – Pozve partnera na rande\n"
                 "`prd darek <item>` – Daruje partnerovi item z inventáře\n"
                 "`prd rozchod` – Ukončí aktuální vztah"
             ),
@@ -2356,6 +2594,7 @@ class Hazard(commands.Cog):
                 "`prd inventar [@uživatel]` – Ukáže tvé itemy a jejich hodnotu\n"
                 "`prd item <kód/název>` – Detail itemu a počet majitelů na serveru\n"
                 "`prd prodat <kód/název> [počet]` – Prodá item botovi za základní cenu\n"
+                "`prd prodatvse` – Prodá celý inventář najednou (s potvrzením)\n"
                 "`prd trade <@uživatel> <tvůj_item> <jejich_item>` – Výměna 1 za 1\n"
                 "`prd nabidka <@uživatel> <item> <cena>` – Prodej item jinému hráči"
             ),
