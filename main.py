@@ -10,6 +10,8 @@ import aiohttp
 import asyncio
 
 import random
+import json
+from pathlib import Path
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -25,13 +27,17 @@ bot = commands.Bot(command_prefix="prd ", intents=intents, help_command=None)
 
 user_message_history = {}
 
+
 @bot.event
 async def on_ready():
     print(f"\nJsme připraveni ke vzletu, pane {bot.user.name}!")
 
+
 @bot.event
 async def on_member_join(member):
-    await member.send(f"Ahoj {member.mention}, vítej na serveru!\nJestli budeš potřebovat s něčím pomoct, napiš majitelovi či komukoliv s rolí Otrok.\nPřeji příjemně strávený čas!\n\t- Prdimír, domácí robot od Radnyxe")
+    await member.send(
+        f"Ahoj {member.mention}, vítej na serveru!\nJestli budeš potřebovat s něčím pomoct, napiš majitelovi či komukoliv s rolí Otrok.\nPřeji příjemně strávený čas!\n\t- Prdimír, domácí robot od Radnyxe")
+
 
 @bot.command()
 async def knp(ctx, choice: str):
@@ -47,13 +53,14 @@ async def knp(ctx, choice: str):
     if choice == bot_choice:
         result = "remíza!!"
     elif (choice == "kámen" and bot_choice == "nůžky") or \
-        (choice == "papír" and bot_choice == "kámen") or \
-        (choice == "nůžky" and bot_choice == "papír"):
+            (choice == "papír" and bot_choice == "kámen") or \
+            (choice == "nůžky" and bot_choice == "papír"):
         result = f"{ctx.author.name} porazil/a jsi mě, gg"
     else:
         result = "vyhrál jsem! :trophy:"
 
     await ctx.send(f"**{ctx.author.mention}**: {choice}\n**Prdimír**: {bot_choice}\n\n{result}")
+
 
 @bot.command()
 async def open(ctx, *, site: str):
@@ -106,7 +113,8 @@ async def senddm(ctx, member: discord.User, *, text: str):
         except Exception:
             čas = "Neznámý čas"
 
-        print(f"\n[{čas}] - ✅ Zpráva odeslána uživateli {member.display_name} ({member.name} // ID: {member.id}): {text}")
+        print(
+            f"\n[{čas}] - ✅ Zpráva odeslána uživateli {member.display_name} ({member.name} // ID: {member.id}): {text}")
 
         if not isinstance(ctx.channel, discord.DMChannel):
             try:
@@ -117,10 +125,13 @@ async def senddm(ctx, member: discord.User, *, text: str):
         await ctx.send(f"✅ Zpráva odeslána uživateli {member.display_name} ||({member.name} // ID: {member.id})||")
 
     except discord.Forbidden:
-        print(f"\n❌ CHYBA: Zpráva se neodeslala {member.display_name} ({member.name} // ID: {member.id}). Má zavřené DMs.")
-        await ctx.send(f"❌ Zprávu se neodeslala uživateli {member.display_name} ||({member.name} // ID: {member.id})||. Má zavřené DMs.")
+        print(
+            f"\n❌ CHYBA: Zpráva se neodeslala {member.display_name} ({member.name} // ID: {member.id}). Má zavřené DMs.")
+        await ctx.send(
+            f"❌ Zprávu se neodeslala uživateli {member.display_name} ||({member.name} // ID: {member.id})||. Má zavřené DMs.")
     except Exception as e:
         print(f"\n⚠️ NEČEKANÁ CHYBA V SENDDM: {e}")
+
 
 @bot.event
 async def on_message(message):
@@ -146,10 +157,10 @@ async def on_message(message):
 
         user_message_history[user_id].append(now)
         user_message_history[user_id] = [
-            t for t in user_message_history[user_id] if (now - t).total_seconds() < 5 # čas
+            t for t in user_message_history[user_id] if (now - t).total_seconds() < 5  # čas
         ]
 
-        if len(user_message_history[user_id]) >= 5: # počet zpráv
+        if len(user_message_history[user_id]) >= 5:  # počet zpráv
             user_message_history[user_id] = []  # reset počítání
 
             try:
@@ -157,16 +168,20 @@ async def on_message(message):
                 await message.channel.send(f"{message.author.mention} drž hubu")
                 print(f"\n[TIMEOUT] {message.author} dostal/a 5minutový timeout za spam.")
             except discord.Forbidden:
-                await message.channel.send("❌ Nemám oprávnění dát tomuto uživateli timeout!\nMusím mít vyšší roli než on/a")
+                await message.channel.send(
+                    "❌ Nemám oprávnění dát tomuto uživateli timeout!\nMusím mít vyšší roli než on/a")
             except Exception as e:
                 print(f"⚠️ Chyba při udělování timeoutu: {e}")
 
         content = message.content.lower()
 
-        if any(word in content for word in ("kurva", "kurvo", "kurvy", "zkurvený", "zkurvenej", "zkurvená", "píča", "píče", "píčo", "piča", "piče", "pičo", "mrdka", "mrdko", "mrdky", "čůrák", "čůráku", "čurák", "čuráku")):
+        if any(word in content for word in
+               ("kurva", "kurvo", "kurvy", "zkurvený", "zkurvenej", "zkurvená", "píča", "píče", "píčo", "piča", "piče",
+                "pičo", "mrdka", "mrdko", "mrdky", "čůrák", "čůráku", "čurák", "čuráku")):
             await message.channel.send("hej!! slušně prosím <:didopycy:1560017961677226104>")
 
-        if any(word in content for word in ("negr", "nigger", "nigga", "niggers", "negři", "negry", "negrové", "negrama", "negri")):
+        if any(word in content for word in
+               ("negr", "nigger", "nigga", "niggers", "negři", "negry", "negrové", "negrama", "negri")):
             await message.channel.send(f"{message.author.mention} seš nějak v pohodě dnes :-)")
 
         if content == "ahoj":
@@ -196,10 +211,11 @@ async def on_message(message):
             await message.channel.send(random.choice(responses))
 
         if content == "jsem chudej" or content == "jsem chudá" or content == "jsem chudý" or content == "nemám peníze":
-            await message.channel.send(f"Chápu tě, {message.author.name}. Tady je seznam stránek, na které **URČITĚ** nechoď, protože jsou **ILEGÁLNÍ**:\n`stránky jsou bezpečné, ale radši používej nějaký AdBlock`"
-                                       f"\n\nHry: <https://steamrip.com/>, <https://gamebounty.world/>"
-                                       f"\n\nFilmy/Seriály: <https://svetserialu.to/>, <https://popcornmovies.ac/>"
-                                       f"\n\nStahování videí: <https://cobalt.meowing.de/>")
+            await message.channel.send(
+                f"Chápu tě, {message.author.name}. Tady je seznam stránek, na které **URČITĚ** nechoď, protože jsou **ILEGÁLNÍ**:\n`stránky jsou bezpečné, ale radši používej nějaký AdBlock`"
+                f"\n\nHry: <https://steamrip.com/>, <https://gamebounty.world/>"
+                f"\n\nFilmy/Seriály: <https://svetserialu.to/>, <https://popcornmovies.ac/>"
+                f"\n\nStahování videí: <https://cobalt.meowing.de/>")
 
         if content in ("dobrou", "dobrou noc"):
             responses = [
@@ -233,11 +249,12 @@ async def on_message(message):
         if content == "jsem černej" or content == "jsem černoch" or content == "jsem negr" or content == "jsem černá" or content == "mám tmavou barvu pleti" or content == "jsem z Afriky" or content == "jsem Afričan":
             try:
                 doba_mute = timedelta(minutes=2)
-                await message.author.timeout(doba_mute, reason = "ohrožování publika")
+                await message.author.timeout(doba_mute, reason="ohrožování publika")
             except:
                 await message.channel.send(f"❌ nemůžu uživatele {message.author.name} poslat na trestnou lavici!!")
 
     await bot.process_commands(message)
+
 
 @bot.command()
 async def prvek(ctx, *, dotaz: str):
@@ -287,11 +304,13 @@ async def prvek(ctx, *, dotaz: str):
 
     await ctx.send(f"❌ Prvek ani značku **{dotaz}** v mé databázi zatím nemám!")
 
+
 async def log_only(ctx, text):
     if isinstance(ctx.channel, discord.DMChannel):
         local_time = datetime.now()
         čas = local_time.strftime("%d.%m.%Y %H:%M:%S")
         print(f"\n[{čas} - Prdimír (Console Only)]: {text}")
+
 
 @bot.event
 async def on_message_delete(message):
@@ -309,6 +328,7 @@ async def on_message_delete(message):
 
         print(f"\n[{čas} - 🗑️ ZPRÁVA SMAZÁNA od {message.author}]: {msg_text}")
 
+
 @bot.command()
 async def test(ctx):
     print("\nDEBUG: test příkaz spuštěn v DMs nebo serveru!")
@@ -318,9 +338,11 @@ async def test(ctx):
     else:
         await ctx.send("funguje!")
 
+
 @bot.event
 async def on_command_error(ctx, error):
     print(f"\n⚠️ CHYBA PŘÍKAZU ({ctx.command}): {error}")
+
 
 @bot.command()
 async def sayin(ctx, channel: discord.TextChannel, *, text: str):
@@ -342,6 +364,7 @@ async def sayin(ctx, channel: discord.TextChannel, *, text: str):
         print(f"\n⚠️ CHYBA V SAYIN: {e}")
         await ctx.send(f"⚠️ Nastala chyba: {e}")
 
+
 @bot.command()
 async def help(ctx):
     await ctx.send('**Příkazy (prefix "prd")**'
@@ -351,7 +374,7 @@ async def help(ctx):
                    '\n`počasí [město]` - jak se teď žije?'
                    '\n`ruskaruleta` - 1/6 šance, že ti slimenu prdel...teda jestli mám práva'
                    '\n`gambling` - obří minihra života...tohle je jen pomocný příkaz na mnoho dalších'
-                   
+
                    '\n\n**Příkazy s omezeným přístupem**'
                    '\n`kick [@uzivatel] [důvod]` - kickneš danou osobu'
                    '\n`ban [@uzivatel] [důvod]` - dáš ban dané osobě'
@@ -399,6 +422,7 @@ async def počasí(ctx, *, mesto: str):
                 error_text = await response.text()
                 await ctx.send(f"⚠️ API vrátilo chybu! Status: `{response.status}` | Odpověď: `{error_text}`")
 
+
 @bot.command()
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def ruskaruleta(ctx):
@@ -425,6 +449,7 @@ async def ruleta_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         await ctx.send(f"⏳ v klidu more, zbraň se ještě chladí! zkus to za {round(error.retry_after, 1)} sekund.")
 
+
 @bot.command()
 async def kick(ctx, member: discord.Member, *, reason: str = "bez důvodu"):
     if not ctx.author.guild_permissions.kick_members:
@@ -439,6 +464,7 @@ async def kick(ctx, member: discord.Member, *, reason: str = "bez důvodu"):
     except Exception as e:
         await ctx.send(f"nastala chyba: {e}")
 
+
 @bot.command()
 async def ban(ctx, member: discord.Member, *, reason: str = "bez důvodu"):
     if not ctx.author.guild_permissions.ban_members:
@@ -451,6 +477,7 @@ async def ban(ctx, member: discord.Member, *, reason: str = "bez důvodu"):
         await ctx.send("⚠️ nastala chybička! asi má vyšší roli než ty nebo já")
     except Exception as e:
         await ctx.send(f"nastala chyba: {e}")
+
 
 @bot.command()
 async def timeout(ctx, member: discord.Member, minutes: int, *, reason: str = "bez důvodu"):
@@ -466,17 +493,191 @@ async def timeout(ctx, member: discord.Member, minutes: int, *, reason: str = "b
     except Exception as e:
         await ctx.send(f"nastala chyba: {e}")
 
+
 @kick.error
 @ban.error
 @timeout.error
 async def mod_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f"❌ chybí argumenty! použití:\n`prd kick @uzivatel [důvod]`\n`prd ban @uzivatel [důvod]`\n`prd timeout @uzivatel [minuty] [důvod]`")
+        await ctx.send(
+            f"❌ chybí argumenty! použití:\n`prd kick @uzivatel [důvod]`\n`prd ban @uzivatel [důvod]`\n`prd timeout @uzivatel [minuty] [důvod]`")
     elif isinstance(error, BadArgument):
         await ctx.send(f"❌ nepodařilo se najít uživatele!! označ ho prosím zavináčem (@uzivatel).")
+
 
 @bot.event
 async def setup_hook():
     await bot.load_extension("gambling")
+    # po restartu znovu oživí tlačítka na starých changelog zprávách
+    for message_id in changelog_votes:
+        bot.add_view(ChangelogView(int(message_id)), message_id=int(message_id))
 
-bot.run(token, log_handler = handler, log_level = logging.DEBUG)
+
+VOTES_FILE = "changelog_votes.json"
+MOJE_DISCORD_ID = 449847721386573825
+
+
+# POZOR: v tomhle souboru je příkaz "open", který přebíjí vestavěné open(),
+# proto čtu/zapisuju přes pathlib a ne přes open()
+def load_votes():
+    try:
+        return json.loads(Path(VOTES_FILE).read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+
+def save_votes():
+    Path(VOTES_FILE).write_text(json.dumps(changelog_votes), encoding="utf-8")
+
+
+# {message_id: {"likes": [user_id, ...], "dislikes": [user_id, ...]}}
+changelog_votes = load_votes()
+
+
+def vykresli_bar(likes, dislikes):
+    celkem = len(likes) + len(dislikes)
+    if celkem == 0:
+        return "⬛⬛⬛⬛⬛⬛⬛⬛⬛⬛ **0 %** *(zatím nikdo nehlasoval)*"
+    procenta = round((len(likes) / celkem) * 100)
+    plnych = round(procenta / 10)
+    bar = "🟩" * plnych + "🟥" * (10 - plnych)
+    return f"{bar} **{procenta} %** ({len(likes)} 👍 / {len(dislikes)} 👎)"
+
+
+class ChangelogView(discord.ui.View):
+    def __init__(self, message_id: int = None):
+        super().__init__(timeout=None)
+        self.message_id = message_id
+
+    def _data(self, message_id):
+        return changelog_votes.setdefault(str(message_id), {"likes": [], "dislikes": []})
+
+    async def _aktualizuj(self, interaction: discord.Interaction, data):
+        embed = interaction.message.embeds[0]
+        embed.set_field_at(
+            0,
+            name="📊 Hodnocení updatu",
+            value=vykresli_bar(data["likes"], data["dislikes"]),
+            inline=False
+        )
+        await interaction.response.edit_message(embed=embed, view=self)
+
+    @discord.ui.button(style=discord.ButtonStyle.success, emoji="👍", custom_id="changelog:like")
+    async def like_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        uid = interaction.user.id
+        data = self._data(interaction.message.id)
+        if uid in data["likes"]:
+            data["likes"].remove(uid)
+        else:
+            data["likes"].append(uid)
+            if uid in data["dislikes"]:
+                data["dislikes"].remove(uid)
+        save_votes()
+        await self._aktualizuj(interaction, data)
+
+    @discord.ui.button(style=discord.ButtonStyle.danger, emoji="👎", custom_id="changelog:dislike")
+    async def dislike_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        uid = interaction.user.id
+        data = self._data(interaction.message.id)
+        if uid in data["dislikes"]:
+            data["dislikes"].remove(uid)
+        else:
+            data["dislikes"].append(uid)
+            if uid in data["likes"]:
+                data["likes"].remove(uid)
+        save_votes()
+        await self._aktualizuj(interaction, data)
+
+    @discord.ui.button(style=discord.ButtonStyle.secondary, emoji="📋", label="List", custom_id="changelog:voters")
+    async def voters_btn(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # ephemeral = zprávu vidí jen ten, kdo klikl
+        if interaction.user.id != MOJE_DISCORD_ID:
+            await interaction.response.send_message("❌ Na tohle nemáš práva.", ephemeral=True)
+            return
+
+        data = self._data(interaction.message.id)
+
+        def format_users(ids):
+            if not ids:
+                return "*nikdo*"
+            radky = []
+            for uid in ids:
+                member = interaction.guild.get_member(uid) if interaction.guild else None
+                jmeno = f"{member.display_name} ({member.name})" if member else f"ID {uid}"
+                radky.append(f"• <@{uid}> – {jmeno}")
+            return "\n".join(radky)
+
+        text = (
+            f"**👍 Líbí se ({len(data['likes'])}):**\n{format_users(data['likes'])}\n\n"
+            f"**👎 Nelíbí se ({len(data['dislikes'])}):**\n{format_users(data['dislikes'])}"
+        )
+        await interaction.response.send_message(text, ephemeral=True)
+
+
+@bot.command(name="changelog", aliases=["update", "novinky"])
+async def changelog(ctx, *, obsah: str = None):
+    MOJE_DISCORD_ID = 449847721386573825
+
+    if ctx.author.id != MOJE_DISCORD_ID:
+        await ctx.send("❌ Na tohle nemáš práva.")
+        return
+
+    if not obsah:
+        await ctx.send(
+            "❌ Použití: `prd changelog Nadpis | Text změn`\n"
+            "Barvy v textu: `[zelena]...[/zelena]`, `[cervena]...[/cervena]`, `[oranzova]...[/oranzova]`, "
+            "`[zluta]...[/zluta]`, `[modra]...[/modra]`, `[tyrkysova]...[/tyrkysova]`, "
+            "`[fialova]...[/fialova]`, `[bila]...[/bila]`, `[seda]...[/seda]`, `[cerna]...[/cerna]`"
+        )
+        return
+
+    if "|" in obsah:
+        nadpis, popis = obsah.split("|", 1)
+    else:
+        nadpis = "📢 Novinky a změny"
+        popis = obsah
+
+    popis = popis.strip()
+
+    barvy = {
+        "zelena": "\u001b[1;32m",
+        "cervena": "\u001b[1;31m",
+        "oranzova": "\u001b[0;31m",
+        "zluta": "\u001b[1;33m",
+        "modra": "\u001b[1;34m",
+        "tyrkysova": "\u001b[1;36m",
+        "fialova": "\u001b[1;35m",
+        "bila": "\u001b[1;37m",
+        "seda": "\u001b[0;37m",
+        "cerna": "\u001b[1;30m",
+    }
+    pouzita_barva = False
+    for nazev, ansi_kod in barvy.items():
+        if f"[{nazev}]" in popis:
+            pouzita_barva = True
+            popis = popis.replace(f"[{nazev}]", ansi_kod).replace(f"[/{nazev}]", "\u001b[0m")
+
+    if pouzita_barva:
+        popis = f"```ansi\n{popis}\n```"
+
+    e = discord.Embed(
+        title=nadpis.strip(),
+        description=popis,
+        color=0x00FFCC
+    )
+    view = ChangelogView()
+    e.add_field(name="📊 Hodnocení updatu", value=vykresli_bar([], []), inline=False)
+    e.set_footer(text=f"vydal/a {ctx.author.display_name}", icon_url=ctx.author.display_avatar.url)
+
+    try:
+        await ctx.message.delete()
+    except discord.HTTPException:
+        pass
+
+    zprava = await ctx.send(embed=e, view=view)
+    view.message_id = zprava.id
+    changelog_votes[str(zprava.id)] = {"likes": [], "dislikes": []}
+    save_votes()
+
+
+bot.run(token, log_handler=handler, log_level=logging.DEBUG)
